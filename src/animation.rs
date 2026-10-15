@@ -42,9 +42,9 @@ pub enum Easing {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Spring {
-    pub stiffness: f32,
-    pub damping: f32,
-    pub mass: f32,
+    stiffness: f32,
+    damping: f32,
+    mass: f32,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
