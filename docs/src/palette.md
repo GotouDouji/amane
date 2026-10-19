@@ -46,6 +46,22 @@ So a wallpaper script that overwrites the same file re-themes your shell on its 
 | `foreground()` | a color readable on `background()`, tinted by the image when possible |
 | `on_accent()` | white or black, whichever reads better on `accent()` |
 | `light()` | `true` when the image is light overall |
+| `scheme()` | the generated Material 3 color roles |
+
+The basic scheme uses the wallpaper's accent as its seed and selects light or dark roles from the image brightness:
+
+This first pass uses CIELAB LCh with fixed Tonal Spot palette chromas. It provides useful Material 3 roles, but is not bit-for-bit compatible with Material Color Utilities' HCT/CAM16 algorithms.
+
+```rust,ignore
+let palette = Palette::read();
+let scheme = palette.scheme();
+
+Rectangle::new()
+    .width(Parent)
+    .height(Parent)
+    .fill(scheme.surface)
+    .child(Text::new("themed").color(scheme.primary));
+```
 
 Before an image is opened, the Palette holds a set of default colors.
 

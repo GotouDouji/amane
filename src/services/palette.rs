@@ -1,6 +1,9 @@
 mod median_cut;
+mod md3;
 mod pick;
 mod sample;
+
+pub use md3::Md3ColorScheme;
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -25,6 +28,8 @@ pub struct Palette {
     modified: Option<SystemTime>,
 
     colors: Vec<Color>,
+
+    scheme: Md3ColorScheme,
 }
 
 // polled, so both a new file at the same path and a new path are picked up
@@ -77,6 +82,7 @@ impl Service for Palette {
 
             palette.modified = now;
             palette.colors = colors;
+            palette.update_scheme();
         }
     }
 }
@@ -91,6 +97,7 @@ impl Palette {
 
         self.modified = modified_time(&path);
         self.colors = quantize(&path, count);
+        self.update_scheme();
 
         self.path = Some(path);
         self.count = count;
@@ -99,6 +106,11 @@ impl Palette {
     // sorted by how much of the image each one covers
     pub fn colors(&self) -> &[Color] {
         &self.colors
+    }
+
+    // Material 3 roles generated from the wallpaper's accent and brightness
+    pub fn scheme(&self) -> &Md3ColorScheme {
+        &self.scheme
     }
 
     // the color the image shows most
@@ -132,16 +144,25 @@ impl Palette {
      * linear brightness calls even a pale pastel picture dark
      */
     pub fn light(&self) -> bool {
-        let mut total = 0.0;
-
-        for &color in &self.colors {
-            total += pick::lightness(color);
-        }
-
-        let average = total / self.colors.len().max(1) as f32;
-
-        average >= 50.0
+        is_light(&self.colors)
     }
+
+    fn update_scheme(&mut self) {
+        let seed = pick::most_vivid(&self.colors).unwrap_or(FALLBACK_ACCENT);
+        self.scheme = Md3ColorScheme::from_seed(seed, !self.light());
+    }
+}
+
+fn is_light(colors: &[Color]) -> bool {
+    let mut total = 0.0;
+
+    for &color in colors {
+        total += pick::lightness(color);
+    }
+
+    let average = total / colors.len().max(1) as f32;
+
+    average >= 50.0
 }
 
 fn quantize(path: &Path, count: usize) -> Vec<Color> {

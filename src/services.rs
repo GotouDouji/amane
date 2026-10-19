@@ -35,7 +35,7 @@ pub use media::{Media, MediaPlayer};
 pub use memory::Memory;
 pub use network::{AccessPoint, Link, Network};
 pub use notifications::{Action, Notification, Notifications, Urgency};
-pub use palette::Palette;
+pub use palette::{Md3ColorScheme, Palette};
 pub use pam::{Pam, PamConfig, PamError, PamMessage, PamMessageKind, PamResult};
 pub use workspace::Workspace;
 pub use workspaces::Workspaces;
